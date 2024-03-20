@@ -1,13 +1,21 @@
+#ifndef BALL_H
+#define BALL_H
+
 #include <vector>
 
-using namespace std;
+class Ball {
+private:
+    float maxX, maxY, posX, posY, speedX, speedY;
+    float* color;
+    int nr, radius; 
 
-class Ball{
-	private:
-		double posX, posY, speedX, speedY;
-		vector<double> color;
-	public:
-		Ball(double posX, double posY, double speed);		~Ball();
 
-		move();
-}
+public:
+    Ball(float maxX, float maxY, float posX, float posY, float speedX, float speedY, float* color, int nr);
+    ~Ball();
+
+    void move();
+    void draw();
+};
+
+#endif // BALL_H

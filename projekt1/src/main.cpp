@@ -1,66 +1,83 @@
+#include <GL/glut.h>
+#include <cmath>
+#include <iostream>
+#include <thread>
+#include <vector>
+#include "ball.h"
 
-// C program to demonstrate 
-// drawing a circle using 
-// OpenGL 
-#include<iostream> 
-#include<GL/glut.h> 
-#include<math.h> 
-#define pi 3.142857 
-  
-// function to initialize 
-void myInit (void) 
-{ 
-    // making background color black as first  
-    // 3 arguments all are 0.0 
-    glClearColor(0.0, 0.0, 0.0, 1.0); 
-      
-    // making picture color green (in RGB mode), as middle argument is 1.0 
-    glColor3f(0.0, 1.0, 0.0); 
-      
-    // breadth of picture boundary is 1 pixel 
-    glPointSize(0); 
-    glMatrixMode(GL_PROJECTION);  
-    glLoadIdentity(); 
-      
-    // setting window dimension in X- and Y- direction 
-    gluOrtho2D(-780, 780, -420, 420); 
-} 
-  
-void display (void)  
-{ 
-    glClear(GL_COLOR_BUFFER_BIT); 
-    glBegin(GL_POINTS); 
-    float x, y, i; 
-      
-    // iterate y up to 2*pi, i.e., 360 degree 
-    // with small increment in angle as 
-    // glVertex2i just draws a point on specified co-ordinate 
-    for ( i = 0; i < (2 * pi); i += 0.001) 
-    { 
-        // let 200 is radius of circle and as, 
-        // circle is defined as x=r*cos(i) and y=r*sin(i) 
-        x = 200 * cos(i); 
-        y = 200 * sin(i); 
-          
-        glVertex2i(x, y); 
-    } 
-    glEnd(); 
-    glFlush(); 
-} 
-  
-int main (int argc, char** argv) 
-{ 
-    glutInit(&argc, argv); 
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); 
-      
-    // giving window size in X- and Y- direction 
-    glutInitWindowSize(1366, 768); 
-    glutInitWindowPosition(0, 0); 
-      
-    // Giving name to window 
-    glutCreateWindow("Circle Drawing"); 
-    myInit(); 
-      
-    glutDisplayFunc(display); 
-    glutMainLoop(); 
-} 
+float translateX = 0.0;
+float translateY = 0.0;
+float translationSpeed = 1.0;
+
+std::vector<Ball> balls;
+std::vector<std::thread> ballThreads;
+float fps = 100/60; //100/1ms
+float newBallProbability = 0.01;
+
+void update(int value) {
+	//if (rand() <= newBallProbability) addBall();
+	
+    	glutPostRedisplay();
+    	glutTimerFunc(fps, update, 0);
+}
+
+void display() {
+    	glClear(GL_COLOR_BUFFER_BIT);
+
+    	// Rysujemy okrąg o promieniu 200, z 50 segmentami
+    	glPushMatrix();
+    	
+    	for(Ball ball: balls){
+    		ball.draw();
+    	}
+    	
+    	glPopMatrix();
+    
+    	glFlush();
+}
+
+void myInit() {
+    	glClearColor(0.0, 0.0, 0.0, 1.0);
+    	glMatrixMode(GL_PROJECTION);
+    	glLoadIdentity();
+    	gluOrtho2D(0, 1400, 0, 800);
+    	
+    	srand(time(nullptr));
+}
+
+void keyUp(unsigned char key, int x, int y){
+	if (key == ' ') exit(0);
+}
+
+void addBall(){
+	
+}
+
+int main(int argc, char** argv) {
+	int width = 1366;
+	int height = 768;
+	float color[] = {1.2f,0.2f,0.2f};
+	
+	Ball ball(width, height, 10, 10, 0, 0, color, 5);
+	balls.push_back(ball);
+	
+	
+	float color1[] = {1.0f,0.9f,0.9f};
+	
+	Ball ball1(width, height, 50, 50, 0, 0, color1, 5);
+	balls.push_back(ball1);
+	
+    	glutInit(&argc, argv);
+    	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    	glutInitWindowSize(width, height);
+    	glutInitWindowPosition(0, 0);
+    	glutCreateWindow("Circle Drawing");
+    	glutKeyboardFunc(keyUp);
+    
+    	myInit();
+    	glutDisplayFunc(display);
+    	glutTimerFunc(0, update, 0); // Rozpoczęcie cyklicznej aktualizacji
+    	glutMainLoop();
+    
+    	return 0;
+}
