@@ -1,3 +1,4 @@
+#include <iostream>
 #include <GL/glut.h>
 #include "ball.h"
 
@@ -13,26 +14,38 @@ Ball::Ball(float maxX, float maxY, float posX, float posY, float speedX, float s
     	this->color = color;
     	this->nr = nr;
     	radius = 10;
+    	
+    	//cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
 }
 
 Ball::~Ball() {}
 
-void Ball::move() {
+bool Ball::move() {
+	bool bounced = false;
+	
 	posX += speedX;
-    	if(posX>=maxX or posX<=0) speedX *= -1;
+    	if(posX>=maxX or posX<=0) {
+    		speedX *= -1;
+    		bounced = true;
+    	}
     
     	posY += speedY;
-    	if(posY>=maxY or posY<=0) speedY *= -1;
+    	if(posY>=maxY or posY<=0){
+    		speedY *= -1;
+    		bounced = true;
+    	}
+    	if(bounced){
+    		bounces++;
+    		if (bounces>=maxBounces) return false;
+    	}
+    	return true;
 }
 
 void Ball::draw() {
-    	glColor3f(0.5, 1.0, 0.0); 
+	
+    	cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
+    	glColor3f(color[0], color[1], color[2]); 
 	glTranslatef(posX, posY, 0.0);
     	gluDisk(gluNewQuadric(), 0, radius, 50, 1);
-    	// Rysujemy napis "1" na kole
-    
-    	glColor3f(0.5, 0.0, 0.0); 
-    	glRasterPos2f(0.0 , 0.0 );
-    	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 5);
-    	//glTranslatef(-translateX, -translateY, 0.0);
+    	glTranslatef(-posX, -posY, 0.0);
 }

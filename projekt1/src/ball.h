@@ -7,14 +7,14 @@ class Ball {
 private:
     float maxX, maxY, posX, posY, speedX, speedY;
     float* color;
-    int nr, radius; 
+    int nr, radius, bounces = 0, maxBounces = 5; 
 
 
 public:
     Ball(float maxX, float maxY, float posX, float posY, float speedX, float speedY, float* color, int nr);
     ~Ball();
 
-    void move();
+    bool move();
     void draw();
 };
 
