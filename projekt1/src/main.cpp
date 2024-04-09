@@ -3,37 +3,39 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <chrono>
 #include "ball.h"
 
 using namespace std;
 
-float translateX = 0.0;
-float translateY = 0.0;
-float translationSpeed = 1.0;
-
 int width = 1370;
 int height = 768;
 
-float maxSpeed = 5;
+float maxSpeed = 1;
+int maxBallsNumber = 10;
 
 std::vector<Ball> balls;
 std::vector<std::thread> ballThreads;
-float fps = 100/60; //100/1ms
-float newBallProbability = .01; //%
+float fps = 10; //ms
+float newBallProbability = .000001; //%
 
 
 void removeBall(int index){
+return;
 	auto it = balls.begin() + index;
 	balls.erase(it);
 }
 
 
 void addBall(){
-	float color[3];
+	if(balls.size()>=maxBallsNumber) return;
+
+	vector<float> color;
 	
 	for(int i =0; i<3;i++){
-		color[i] = float(random()) /RAND_MAX;
+		color.push_back(float(random()) /RAND_MAX);
 	}
+	
 	
 	float speedX = float(random()) /RAND_MAX * maxSpeed;
 	float speedY = float(random()) /RAND_MAX * maxSpeed;
@@ -41,11 +43,13 @@ void addBall(){
 	float posX = float(random()) /RAND_MAX * width;
 	float posY = float(random()) /RAND_MAX * height;
 	
-	Ball ball(width, height, posX, posY, speedX, speedY, color, 1);
+	Ball ball(width, height, posX, posY, speedX, speedY, color, balls.size());
 	balls.push_back(ball);
 	
+	ballThreads.push_back(balls[balls.size() - 1].movingThread());
 	
-    	//cout<<color[0]<<" "<<color[1]<<" "<<color[2]<<endl;
+    	
+    	//cout<<float(random()) /RAND_MAX<<endl;
 	
 }
 
@@ -87,24 +91,31 @@ void myInit() {
     	srand(time(nullptr));
 }
 
+void close(){
+	while(balls.size()>0){
+		balls.front().kill();
+		cout<<"closing " <<balls.front().alive<<endl;
+		balls.erase(balls.begin());
+		
+	}
+	cout<<"all done  "<<endl;
+	
+	for(int i = 0; i<ballThreads.size(); i++){
+		ballThreads[0].join();
+		cout<<i<<" joined"<<endl;
+	}
+	exit(0);
+}
+
 void keyUp(unsigned char key, int x, int y){
-	if (key == ' ') exit(0);
+	if (key == ' '){
+	close();
+	}
 }
 
 
 int main(int argc, char** argv) {
 	srand(time(NULL));
-	
-	float color[] = {1.f,0.f,0.f};
-	
-	Ball ball(width, height, 500, 300, .1, .6, color, 1);
-	balls.push_back(ball);
-	
-	
-	float color1[] = {1.0f,0.9f,0.9f};
-	
-	Ball ball1(width, height, 50, 50, -.3, .2, color1, 2);
-	balls.push_back(ball1);
 	
 	
     	glutInit(&argc, argv);

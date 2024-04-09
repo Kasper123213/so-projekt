@@ -1,24 +1,30 @@
 #include <iostream>
 #include <GL/glut.h>
+#include <vector>
+#include <chrono>
 #include "ball.h"
 
-using namespace std;
 
-Ball::Ball(float maxX, float maxY, float posX, float posY, float speedX, float speedY, float* color, int nr) {
+Ball::Ball(float maxX, float maxY, float posX, float posY, float speedX, float speedY, vector<float> color, int nr) {
     	this->maxX = maxX;
 	this->maxY = maxY;
     	this->posX = posX;
     	this->posY = posY;
     	this->speedX = speedX;
     	this->speedY = speedY;
-    	this->color = color;
     	this->nr = nr;
-    	radius = 10;
+    	radius = 15;
+    	alive = true;
+    	
+    	for(float f: color){
+    		this->color.push_back(f);
+    	}
     	
     	//cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
 }
 
-Ball::~Ball() {}
+Ball::~Ball() {
+}
 
 bool Ball::move() {
 	bool bounced = false;
@@ -36,16 +42,55 @@ bool Ball::move() {
     	}
     	if(bounced){
     		bounces++;
-    		if (bounces>=maxBounces) return false;
+    		if (bounces>=maxBounces) {
+    			alive = false;
+    			return false;
+    		}
     	}
     	return true;
 }
 
+
+void Ball::kill(){
+	alive = false;
+}
+
 void Ball::draw() {
 	
-    	cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
+    	//cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
     	glColor3f(color[0], color[1], color[2]); 
 	glTranslatef(posX, posY, 0.0);
     	gluDisk(gluNewQuadric(), 0, radius, 50, 1);
     	glTranslatef(-posX, -posY, 0.0);
+    	
+    	glColor3f(0, 0, 0); 
+	std::string text = to_string(nr);
+	float textX = posX - radius * 0.5; // Ustaw poziomą pozycję tekstu
+	float textY = posY - radius * 0.5; // Ustaw pionową pozycję tekstu
+	drawText(text, textX, textY);
+}
+
+
+void Ball::drawText(const std::string& text, float x, float y) {
+    // Ustaw pozycję tekstu
+    glRasterPos2f(x, y);
+    
+    // Narysuj każdy znak osobno
+    for (char c : text) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    }
+}
+
+
+
+thread Ball::movingThread(){
+	return thread(&Ball::movment, this);
+}
+
+
+void Ball::movment(){
+	while(alive){
+		this_thread::sleep_for(chrono::milliseconds(1000));
+		cout<<nr<<"        "<<alive<<endl;
+	}
 }
