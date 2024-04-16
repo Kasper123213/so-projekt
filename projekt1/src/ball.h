@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <string>
-#include <thread>
 #include <unistd.h>
 
 
@@ -13,23 +12,24 @@ class Ball {
 private:
 	float maxX, maxY, posX, posY, speedX, speedY;
 	vector<float> color;
-	int nr, radius, bounces = 0, maxBounces = 5; 
+	int radius, bounces = 0, maxBounces = 3; 
 	
 
 	void drawText(const std::string& text, float x, float y);
-	void movment();
 
 public:
 	Ball(float maxX, float maxY, float posX, float posY, float speedX, float speedY, vector<float> color, int nr);
 	~Ball();
 	
+	int nr;
 	bool alive;
 
 	bool move();
 	void draw();
 	void kill();
+	
+	void sayHI();
     
-    	thread movingThread();
     
 };
 

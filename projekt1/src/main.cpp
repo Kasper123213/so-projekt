@@ -1,9 +1,10 @@
 #include <GL/glut.h>
 #include <cmath>
 #include <iostream>
-#include <thread>
+#include <pthread.h>
 #include <vector>
 #include <chrono>
+#include <unistd.h> 
 #include "ball.h"
 
 using namespace std;
@@ -15,15 +16,29 @@ float maxSpeed = 1;
 int maxBallsNumber = 10;
 
 std::vector<Ball> balls;
-std::vector<std::thread> ballThreads;
+std::vector<pthread_t> ballThreads;
 float fps = 10; //ms
 float newBallProbability = .000001; //%
 
 
 void removeBall(int index){
-return;
 	auto it = balls.begin() + index;
 	balls.erase(it);
+}
+
+
+void* threadFunction(void* arg){
+	int ballIndex = *reinterpret_cast<int*>(arg);
+	Ball* ball = &balls[ballIndex];
+	
+	while(true){
+		ball->sayHI();
+		// Zatrzymaj wątek na 5 sekund
+	    	sleep(10);
+	}
+	
+	delete ball;
+	return nullptr;
 }
 
 
@@ -37,21 +52,28 @@ void addBall(){
 	}
 	
 	
-	float speedX = float(random()) /RAND_MAX * maxSpeed;
-	float speedY = float(random()) /RAND_MAX * maxSpeed;
+	float speedX = float(random()) /RAND_MAX * maxSpeed * 2 - maxSpeed;
+	float speedY = float(random()) /RAND_MAX * maxSpeed * 2 - maxSpeed;
 	
 	float posX = float(random()) /RAND_MAX * width;
 	float posY = float(random()) /RAND_MAX * height;
 	
 	Ball ball(width, height, posX, posY, speedX, speedY, color, balls.size());
+	//Ball ball(width, height, posX, posY, speedX, speedY, color, 1);
 	balls.push_back(ball);
 	
-	ballThreads.push_back(balls[balls.size() - 1].movingThread());
+	int ballSize = balls.size() - 1;
 	
+	pthread_t thread;
+	if(pthread_create(&thread, nullptr, threadFunction, reinterpret_cast<void*>(&ballSize)) != 0){
+		cerr<<"Blad w dodawaniu watku "<<endl;
+	}
+	
+	ballThreads.push_back(thread);
     	
-    	//cout<<float(random()) /RAND_MAX<<endl;
 	
 }
+
 
 
 void update(int value) {
@@ -94,16 +116,11 @@ void myInit() {
 void close(){
 	while(balls.size()>0){
 		balls.front().kill();
-		cout<<"closing " <<balls.front().alive<<endl;
 		balls.erase(balls.begin());
 		
 	}
-	cout<<"all done  "<<endl;
 	
-	for(int i = 0; i<ballThreads.size(); i++){
-		ballThreads[0].join();
-		cout<<i<<" joined"<<endl;
-	}
+	
 	exit(0);
 }
 

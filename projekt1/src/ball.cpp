@@ -20,7 +20,6 @@ Ball::Ball(float maxX, float maxY, float posX, float posY, float speedX, float s
     		this->color.push_back(f);
     	}
     	
-    	//cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
 }
 
 Ball::~Ball() {
@@ -57,7 +56,6 @@ void Ball::kill(){
 
 void Ball::draw() {
 	
-    	//cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
     	glColor3f(color[0], color[1], color[2]); 
 	glTranslatef(posX, posY, 0.0);
     	gluDisk(gluNewQuadric(), 0, radius, 50, 1);
@@ -83,14 +81,8 @@ void Ball::drawText(const std::string& text, float x, float y) {
 
 
 
-thread Ball::movingThread(){
-	return thread(&Ball::movment, this);
+void Ball::sayHI(){
+	cout<<"Hi "<<nr<<endl;
 }
 
 
-void Ball::movment(){
-	while(alive){
-		this_thread::sleep_for(chrono::milliseconds(1000));
-		cout<<nr<<"        "<<alive<<endl;
-	}
-}

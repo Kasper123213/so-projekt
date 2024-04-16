@@ -1,3 +1,4 @@
 #!/usr/bin/bash
-g++ -o so2-p.exe src/* -lglut -lGLU -lGL
+clear
+g++ -o so2-p.exe src/* -lglut -lGLU -lGL -lpthread
 ./so2-p.exe
