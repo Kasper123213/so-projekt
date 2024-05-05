@@ -1,10 +1,9 @@
 #include <GL/glut.h>
 #include <cmath>
 #include <iostream>
-#include <pthread.h>
+#include <thread>
 #include <vector>
 #include <chrono>
-#include <unistd.h> 
 #include "ball.h"
 
 using namespace std;
@@ -13,32 +12,26 @@ int width = 1370;
 int height = 768;
 
 float maxSpeed = 1;
-int maxBallsNumber = 10;
+int maxBallsNumber = 3;
 
-std::vector<Ball> balls;
-std::vector<pthread_t> ballThreads;
-float fps = 10; //ms
+std::vector<Ball*> balls;
+std::vector<thread> ballThreads;
+float fps = 50; //ms
 float newBallProbability = .000001; //%
 
 
 void removeBall(int index){
-	auto it = balls.begin() + index;
-	balls.erase(it);
-}
-
-
-void* threadFunction(void* arg){
-	int ballIndex = *reinterpret_cast<int*>(arg);
-	Ball* ball = &balls[ballIndex];
+	balls.at(index)->kill();
 	
-	while(true){
-		ball->sayHI();
-		// Zatrzymaj wątek na 5 sekund
-	    	sleep(10);
-	}
+	ballThreads[index].join();
+	cout<<index<<" joined"<<endl;
 	
-	delete ball;
-	return nullptr;
+	auto threadsIt = ballThreads.begin() + index;
+	ballThreads.erase(threadsIt);
+	
+	auto ballsIt = balls.begin() + index;
+	delete balls.at(index);
+	balls.erase(ballsIt);
 }
 
 
@@ -52,36 +45,29 @@ void addBall(){
 	}
 	
 	
-	float speedX = float(random()) /RAND_MAX * maxSpeed * 2 - maxSpeed;
-	float speedY = float(random()) /RAND_MAX * maxSpeed * 2 - maxSpeed;
+	float speedX = float(random()) /RAND_MAX * maxSpeed;
+	float speedY = float(random()) /RAND_MAX * maxSpeed*2;	//zmienic
 	
 	float posX = float(random()) /RAND_MAX * width;
 	float posY = float(random()) /RAND_MAX * height;
 	
-	Ball ball(width, height, posX, posY, speedX, speedY, color, balls.size());
-	//Ball ball(width, height, posX, posY, speedX, speedY, color, 1);
+	Ball* ball = new Ball(width, height, posX, posY, speedX, speedY, color, balls.size());
+	cout<<"rozmiar \t"<<balls.size()<<endl;
 	balls.push_back(ball);
 	
-	int ballSize = balls.size() - 1;
+	ballThreads.push_back(balls[balls.size() - 1]->movingThread());
 	
-	pthread_t thread;
-	if(pthread_create(&thread, nullptr, threadFunction, reinterpret_cast<void*>(&ballSize)) != 0){
-		cerr<<"Blad w dodawaniu watku "<<endl;
-	}
-	
-	ballThreads.push_back(thread);
     	
+    	//cout<<float(random()) /RAND_MAX<<endl;
 	
 }
-
 
 
 void update(int value) {
 	if (rand()%100 <= newBallProbability) addBall();
 	
     	for(int i = 0; i<balls.size(); i++){
-    		bool survived = balls[i].move();
-    		if(not survived){
+    		if(not balls[i]->isAlive()){
     			removeBall(i);
 		}
     	}
@@ -95,7 +81,7 @@ void display() {
     	// Rysujemy okrąg o promieniu 200, z 50 segmentami
     	glPushMatrix();
     	for(int i = 0; i<balls.size(); i++){
-    		balls[i].draw();
+    		balls[i]->draw();
     	}
     	
     	glPopMatrix();
@@ -115,18 +101,37 @@ void myInit() {
 
 void close(){
 	while(balls.size()>0){
-		balls.front().kill();
+		balls.front()->kill();
+		//cout<<"closing " <<balls.front().alive<<endl;
 		balls.erase(balls.begin());
 		
 	}
+	cout<<"all done  "<<endl;
 	
-	
+	for(int i = 0; i<ballThreads.size(); i++){
+		ballThreads[i].join();
+		cout<<i<<" joined"<<endl;
+	}
 	exit(0);
 }
 
 void keyUp(unsigned char key, int x, int y){
 	if (key == ' '){
-	close();
+		close();
+	}
+	if (key == 'i'){
+		cout<<"Size of balls: "<<balls.size()<<endl;
+		cout<<"Size of threads: "<<ballThreads.size()<<endl;
+		for(int i = 0; i<ballThreads.size(); i++){
+			cout<<i<<" "<<balls[i]->getX()<<" "<< balls[i]->getY()<<" "<<balls[i]->isAlive()<<" "<<ballThreads[i].joinable()<<endl;
+		}
+		cout<<endl<<endl;
+	}
+	if (key == 'a'){
+		addBall();
+	}
+	if (key == 'r'){
+		removeBall(balls.size()-1);
 	}
 }
 

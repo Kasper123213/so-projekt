@@ -25,28 +25,36 @@ Ball::Ball(float maxX, float maxY, float posX, float posY, float speedX, float s
 Ball::~Ball() {
 }
 
-bool Ball::move() {
-	bool bounced = false;
+void Ball::move() {
+	setX(getX() + speedX);
 	
-	posX += speedX;
-    	if(posX>=maxX or posX<=0) {
+    	if(getX()>maxX) {
     		speedX *= -1;
-    		bounced = true;
+    		setX(maxX);
+    		bounces++;
+    	}
+    	
+    	if(getX()<0) {
+    		speedX *= -1;
+    		bounces++;
+    		setX(0);
     	}
     
-    	posY += speedY;
-    	if(posY>=maxY or posY<=0){
+    
+    	setY(getY() + speedY);
+   
+    	if(getY()>maxY){
     		speedY *= -1;
-    		bounced = true;
-    	}
-    	if(bounced){
+    		setY(maxY);
     		bounces++;
-    		if (bounces>=maxBounces) {
-    			alive = false;
-    			return false;
-    		}
     	}
-    	return true;
+    	
+    	if(getY()<0){
+    		speedY *= -1;
+    		setY(0);
+    		bounces++;
+    	}
+    	
 }
 
 
@@ -55,16 +63,17 @@ void Ball::kill(){
 }
 
 void Ball::draw() {
-	
+	//cout<<"drawing "<<nr<<endl;
+    	//cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
     	glColor3f(color[0], color[1], color[2]); 
-	glTranslatef(posX, posY, 0.0);
+	glTranslatef(getX(), getY(), 0.0);
     	gluDisk(gluNewQuadric(), 0, radius, 50, 1);
-    	glTranslatef(-posX, -posY, 0.0);
+    	glTranslatef(-getX(), -getY(), 0.0);
     	
     	glColor3f(0, 0, 0); 
-	std::string text = to_string(nr);
-	float textX = posX - radius * 0.5; // Ustaw poziomą pozycję tekstu
-	float textY = posY - radius * 0.5; // Ustaw pionową pozycję tekstu
+	std::string text = to_string(getNr());
+	float textX = getX() - radius * 0.5; // Ustaw poziomą pozycję tekstu
+	float textY = getY() - radius * 0.5; // Ustaw pionową pozycję tekstu
 	drawText(text, textX, textY);
 }
 
@@ -81,8 +90,45 @@ void Ball::drawText(const std::string& text, float x, float y) {
 
 
 
-void Ball::sayHI(){
-	cout<<"Hi "<<nr<<endl;
+thread Ball::movingThread(){
+	return thread(&Ball::movement, this);
 }
 
 
+void Ball::movement(){
+	while(isAlive()){
+		if(bounces >= maxBounces){
+			kill();
+			break;
+		}
+		move();
+		this_thread::sleep_for(chrono::milliseconds(20));
+		cout<<getNr()<<"\t"<<bounces<<endl;
+	}
+	cout<<"Umarl "<< getNr()<<" "<<endl;
+}
+
+bool Ball::isAlive(){
+	return alive;
+}
+
+float Ball::getX(){
+	return posX;
+}
+
+void Ball::setX(float value){
+	posX = value;
+}
+
+float Ball::getY(){
+	return posY;
+}
+
+void Ball::setY(float value){
+	posY = value;
+}
+
+int Ball::getNr(){
+	return nr;
+}
+	
