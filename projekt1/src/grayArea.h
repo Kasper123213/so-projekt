@@ -2,19 +2,39 @@
 #define GRAYAREA_H
 
 #include <vector>
+#include <thread>
 
 using namespace std;
 
 class GrayArea{
 	private:
-		double posX, posY, speed;
-		vector<double> color;
+		float posX, posY, maxY, speed, size = 100, maxSpeed = 4, minSpeed = 1;
+		vector<float> color;
+		bool alive = true;
+		
+		void movement();
 
 	public:
-		GrayArea(double posX, double posY);
+		GrayArea(float posX, float posY, float maxY, float speed);
 		~GrayArea();
 
 		void move();
+		void draw();
+		
+		void setX(float value);
+		float getX();
+		
+		void setY(float value);
+		float getY();
+		
+		void setRandomSpeed();
+		void setSpeed(float value);
+		float getSpeed();
+		
+		void kill();
+		bool isAlive();
+		
+		thread movingThread();
 
 		
 };

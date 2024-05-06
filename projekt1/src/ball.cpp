@@ -32,12 +32,14 @@ void Ball::move() {
     		speedX *= -1;
     		setX(maxX);
     		bounces++;
+    		return;
     	}
     	
     	if(getX()<0) {
     		speedX *= -1;
     		bounces++;
     		setX(0);
+    		return;
     	}
     
     
@@ -47,12 +49,14 @@ void Ball::move() {
     		speedY *= -1;
     		setY(maxY);
     		bounces++;
+    		return;
     	}
     	
     	if(getY()<0){
     		speedY *= -1;
     		setY(0);
     		bounces++;
+    		return;
     	}
     	
 }
@@ -63,8 +67,6 @@ void Ball::kill(){
 }
 
 void Ball::draw() {
-	//cout<<"drawing "<<nr<<endl;
-    	//cout<<this->color[0]<<" "<<this->color[1]<<" "<<this->color[2]<<endl;
     	glColor3f(color[0], color[1], color[2]); 
 	glTranslatef(getX(), getY(), 0.0);
     	gluDisk(gluNewQuadric(), 0, radius, 50, 1);
@@ -102,10 +104,8 @@ void Ball::movement(){
 			break;
 		}
 		move();
-		this_thread::sleep_for(chrono::milliseconds(20));
-		cout<<getNr()<<"\t"<<bounces<<endl;
+		this_thread::sleep_for(chrono::milliseconds(50));
 	}
-	cout<<"Umarl "<< getNr()<<" "<<endl;
 }
 
 bool Ball::isAlive(){

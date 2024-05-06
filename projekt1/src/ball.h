@@ -13,7 +13,7 @@ class Ball {
 private:
 	float maxX, maxY, speedX, speedY, posX, posY;
 	vector<float> color;
-	int nr, radius, bounces = 0, maxBounces = 3; 
+	int nr, radius, bounces = 0, maxBounces = 5; 
 	bool alive;
 	
 
