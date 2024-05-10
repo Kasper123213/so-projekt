@@ -120,8 +120,8 @@ void close(){
 		ballThreads[i].join();
 	}
 	
-	delete grayArea;
 	grayArea->kill();
+	delete grayArea;
 	grayAreaThread.join();
 	
 	exit(0);

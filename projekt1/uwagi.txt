@@ -1,0 +1,2 @@
+1. Zrobić nowy wątek dla dodawania i usuwania kulek.
+2. Kulka ma sie przesuwać o dany krok np. 1 a predkosc to czas sleep.
