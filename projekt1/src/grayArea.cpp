@@ -6,7 +6,7 @@
 #include "grayArea.h"
 
 
-GrayArea::GrayArea(float posX, float posY, float maxY, float speed){
+GrayArea::GrayArea(float posX, float posY, float maxY, int speed){
 	this->posX = posX;
 	this->posY = posY;
 	this->maxY = maxY;
@@ -32,17 +32,17 @@ void GrayArea::draw() {
 }
 
 void GrayArea::move() {
-	setY(getY() + getSpeed());
+	setY(getY() + step);
 	
 	int y = getY();
 	
 	if(y-size<0){
+		step *= -1;
 		setRandomSpeed();
-		setSpeed(getSpeed() * (-1));
 		setY(size);
 	}else if(y+size>maxY){
+		step *= -1;
 		setRandomSpeed();
-		setSpeed(getSpeed() * (-1));
 		setY(maxY-size);
 	}
 }
@@ -56,7 +56,7 @@ thread GrayArea::movingThread(){
 void GrayArea::movement(){
 	while(isAlive()){
 		move();
-		this_thread::sleep_for(chrono::milliseconds(50));
+		this_thread::sleep_for(chrono::milliseconds(getSpeed()));
 	}
 }
 
@@ -72,18 +72,17 @@ void GrayArea::setY(float value){posY = value;}
 float GrayArea::getY(){return posY;}
 
 
-void GrayArea::setSpeed(float value){speed = value;}	
+void GrayArea::setSpeed(int value){speed = value;}	
 
 
 void GrayArea::setRandomSpeed(){
-	float randomValue = float(random()) /RAND_MAX * (maxSpeed - minSpeed) + minSpeed;
-	if (getSpeed()<0) randomValue *= -1;
+	int randomValue = int(float(random()) /RAND_MAX * (minSpeed - maxSpeed) + maxSpeed);
 	
 	setSpeed(randomValue);
 }
 
 
-float GrayArea::getSpeed(){return speed;}
+int GrayArea::getSpeed(){return speed;}
 
 
 bool GrayArea::isAlive(){return alive;}

@@ -12,11 +12,15 @@ using namespace std;
 int width = 1370;
 int height = 768;
 
-float minSpeed = -3;
-float maxSpeed = 3;
+float minStep = -1;
+float maxStep = 1;
+
+int maxSpeed = 10;
+int minSpeed = 60;
+
 int maxBallsNumber = 4;
 
-GrayArea *grayArea = new GrayArea(150, height/2, height, 1.5);
+GrayArea *grayArea = new GrayArea(150, height/2, height, 10);
 thread grayAreaThread = grayArea->movingThread();
 
 std::vector<Ball*> balls;
@@ -47,14 +51,17 @@ void addBall(){
 	}
 	
 	
-	float speedX = float(random()) /RAND_MAX * (maxSpeed - minSpeed) + minSpeed;
-	float speedY = float(random()) /RAND_MAX * (maxSpeed - minSpeed) + minSpeed;	//zmienic
+	float stepX = float(random()) /RAND_MAX * (maxStep - minStep) + minStep;
+	float stepY = float(random()) /RAND_MAX * (maxStep - minStep) + minStep;
+	
+	
+	int speed = int(float(random()) /RAND_MAX * (minSpeed - maxSpeed) + maxSpeed);
 	
 	
 	float posX = width / 2;
 	float posY = 1;
 	
-	Ball* ball = new Ball(width, height, posX, posY, speedX, speedY, color, balls.size());
+	Ball* ball = new Ball(width, height, posX, posY, stepX, stepY, color, balls.size(), speed);
 	balls.push_back(ball);
 	
 	ballThreads.push_back(balls[balls.size() - 1]->movingThread());

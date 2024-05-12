@@ -11,9 +11,9 @@ using namespace std;
 
 class Ball {
 private:
-	float maxX, maxY, speedX, speedY, posX, posY;
+	float maxX, maxY, stepX, stepY, posX, posY;
 	vector<float> color;
-	int nr, radius, bounces = 0, maxBounces = 5; 
+	int nr, speed, radius, bounces = 0, maxBounces = 5; 
 	bool alive;
 	
 
@@ -22,7 +22,7 @@ private:
 	
 
 public:
-	Ball(float maxX, float maxY, float posX, float posY, float speedX, float speedY, vector<float> color, int nr);
+	Ball(float maxX, float maxY, float posX, float posY, float stepX, float stepY, vector<float> color, int nr, int speed);
 	~Ball();
 	
 	int getNr();

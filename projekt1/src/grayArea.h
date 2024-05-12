@@ -8,14 +8,15 @@ using namespace std;
 
 class GrayArea{
 	private:
-		float posX, posY, maxY, speed, size = 100, maxSpeed = 4, minSpeed = 1;
+		float posX, posY, maxY, size = 100, step = 2;
+		int speed, maxSpeed = 1, minSpeed = 50;
 		vector<float> color;
 		bool alive = true;
 		
 		void movement();
 
 	public:
-		GrayArea(float posX, float posY, float maxY, float speed);
+		GrayArea(float posX, float posY, float maxY, int speed);
 		~GrayArea();
 
 		void move();
@@ -28,8 +29,8 @@ class GrayArea{
 		float getY();
 		
 		void setRandomSpeed();
-		void setSpeed(float value);
-		float getSpeed();
+		void setSpeed(int value);
+		int getSpeed();
 		
 		void kill();
 		bool isAlive();

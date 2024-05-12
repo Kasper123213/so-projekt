@@ -5,14 +5,15 @@
 #include "ball.h"
 
 
-Ball::Ball(float maxX, float maxY, float posX, float posY, float speedX, float speedY, vector<float> color, int nr) {
+Ball::Ball(float maxX, float maxY, float posX, float posY, float stepX, float stepY, vector<float> color, int nr, int speed) {
     	this->maxX = maxX;
 	this->maxY = maxY;
     	this->posX = posX;
     	this->posY = posY;
-    	this->speedX = speedX;
-    	this->speedY = speedY;
+    	this->stepX = stepX;
+    	this->stepY = stepY;
     	this->nr = nr;
+    	this->speed = speed;
     	radius = 15;
     	alive = true;
     	
@@ -26,34 +27,34 @@ Ball::~Ball() {
 }
 
 void Ball::move() {
-	setX(getX() + speedX);
+	setX(getX() + stepX);
 	
     	if(getX()>maxX) {
-    		speedX *= -1;
+    		stepX *= -1;
     		setX(maxX);
     		bounces++;
     		return;
     	}
     	
     	if(getX()<0) {
-    		speedX *= -1;
+    		stepX *= -1;
     		bounces++;
     		setX(0);
     		return;
     	}
     
     
-    	setY(getY() + speedY);
+    	setY(getY() + stepY);
    
     	if(getY()>maxY){
-    		speedY *= -1;
+    		stepY *= -1;
     		setY(maxY);
     		bounces++;
     		return;
     	}
     	
     	if(getY()<0){
-    		speedY *= -1;
+    		stepY *= -1;
     		setY(0);
     		bounces++;
     		return;
@@ -104,7 +105,7 @@ void Ball::movement(){
 			break;
 		}
 		move();
-		this_thread::sleep_for(chrono::milliseconds(50));
+		this_thread::sleep_for(chrono::milliseconds(speed));
 	}
 }
 
