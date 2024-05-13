@@ -15,24 +15,32 @@ int height = 768;
 float minStep = -1;
 float maxStep = 1;
 
-int maxSpeed = 10;
-int minSpeed = 60;
+int maxBallsSpeed = 1;
+int minBallsSpeed = 20;
 
-int maxBallsNumber = 4;
+int maxBallsNumber = 5;
 
 GrayArea *grayArea = new GrayArea(150, height/2, height, 10);
 thread grayAreaThread = grayArea->movingThread();
 
 std::vector<Ball*> balls;
 std::vector<thread> ballThreads;
-float fps = 10; //ms
+
+float refreshingScreenSpeed = 10; //ms
 float newBallProbability = .0000005; //%
 
+
+thread ballsUpdatingThread;
+int ballsUpdatingSpeed = 20;
+
+bool appIsRunning = true;
+
+int getBallsSize(){ return balls.size();}
 
 void removeBall(int index){
 	balls.at(index)->kill();
 	
-	ballThreads[index].join();
+	ballThreads.at(index).join();
 	
 	auto threadsIt = ballThreads.begin() + index;
 	ballThreads.erase(threadsIt);
@@ -55,35 +63,44 @@ void addBall(){
 	float stepY = float(random()) /RAND_MAX * (maxStep - minStep) + minStep;
 	
 	
-	int speed = int(float(random()) /RAND_MAX * (minSpeed - maxSpeed) + maxSpeed);
+	int speed = int(float(random()) /RAND_MAX * (maxBallsSpeed - minBallsSpeed) + minBallsSpeed);
 	
 	
 	float posX = width / 2;
 	float posY = 1;
 	
-	Ball* ball = new Ball(width, height, posX, posY, stepX, stepY, color, balls.size(), speed);
+	Ball* ball = new Ball(width, height, posX, posY, stepX, stepY, color, getBallsSize(), speed);
 	balls.push_back(ball);
 	
-	ballThreads.push_back(balls[balls.size() - 1]->movingThread());
+	ballThreads.push_back(balls.at(getBallsSize() - 1)->movingThread());
 	
 }
 
 
-void update(int value) {
-	if (maxBallsNumber > 0){
-		if (rand()%100 <= newBallProbability){
-			addBall();
-			maxBallsNumber--;
+void ballUpdating(){
+	while(appIsRunning){
+		if (maxBallsNumber > 0){
+			if (rand()%100 <= newBallProbability){
+				addBall();
+				maxBallsNumber--;
+			}
 		}
-	}
 	
-    	for(int i = 0; i<balls.size(); i++){
-    		if(not balls[i]->isAlive()){
-    			removeBall(i);
-		}
+    		for(int i = 0; i<getBallsSize(); i++){
+    			if(not balls.at(i)->isAlive()){
+    				removeBall(i);
+			}
+    		}
+    		
+    		this_thread::sleep_for(chrono::milliseconds(ballsUpdatingSpeed));
     	}
+}
+ 
+
+void update(int _) {
+	
     	glutPostRedisplay();	//wywołanie display
-    	glutTimerFunc(fps, update, 0);
+    	glutTimerFunc(refreshingScreenSpeed, update, 0);
 }
 
 void display() {
@@ -92,12 +109,12 @@ void display() {
     	// Rysujemy okrąg o promieniu 200, z 50 segmentami
     	glPushMatrix();
     	
+    	grayArea->draw();
     	
-    	for(int i = 0; i<balls.size(); i++){
-    		balls[i]->draw();
+    	for(int i = 0; i<getBallsSize(); i++){
+    		balls.at(i)->draw();
     	}
     	
-    	grayArea->draw();
     	
     	glPopMatrix();
     
@@ -106,6 +123,8 @@ void display() {
 
 
 void myInit() {
+	ballsUpdatingThread = thread(ballUpdating);
+	
     	glClearColor(0.0, 0.0, 0.0, 1.0);
     	glMatrixMode(GL_PROJECTION);
     	glLoadIdentity();
@@ -117,19 +136,24 @@ void myInit() {
 
 
 void close(){
-	while(balls.size()>0){
+	appIsRunning = false;
+	ballsUpdatingThread.join();
+	
+	
+	while(getBallsSize()>0){
 		balls.front()->kill();
 		balls.erase(balls.begin());
 		
 	}
 	
 	for(int i = 0; i<ballThreads.size(); i++){
-		ballThreads[i].join();
+		ballThreads.at(i).join();
 	}
 	
 	grayArea->kill();
 	delete grayArea;
 	grayAreaThread.join();
+	
 	
 	exit(0);
 }
@@ -137,16 +161,6 @@ void close(){
 void keyUp(unsigned char key, int x, int y){
 	if (key == ' '){
 		close();
-	}
-	if (key == 'i'){
-		
-		cout<<grayArea->getX()<<" "<<grayArea->getY()<<" "<<grayArea->getSpeed()<<endl;
-	}
-	if (key == 'a'){
-		addBall();
-	}
-	if (key == 'r'){
-		removeBall(balls.size()-1);
 	}
 }
 
