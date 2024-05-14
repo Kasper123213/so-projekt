@@ -22,10 +22,10 @@ void GrayArea::draw() {
     	glColor3f(color[0], color[1], color[2]); 
 	
     	glBegin(GL_QUADS);
-    	glVertex2f(x-size,y-size);
-    	glVertex2f(x+size,y-size);
-    	glVertex2f(x+size,y+size);
-    	glVertex2f(x-size,y+size);
+    	glVertex2f(x-width,y-height);
+    	glVertex2f(x+width,y-height);
+    	glVertex2f(x+width,y+height);
+    	glVertex2f(x-width,y+height);
     	glEnd();
     	
     	
@@ -36,14 +36,14 @@ void GrayArea::move() {
 	
 	int y = getY();
 	
-	if(y-size<0){
+	if(y-height<0){
 		step *= -1;
 		setRandomSpeed();
-		setY(size);
-	}else if(y+size>maxY){
+		setY(height);
+	}else if(y+height>maxY){
 		step *= -1;
 		setRandomSpeed();
-		setY(maxY-size);
+		setY(maxY-height);
 	}
 }
 
@@ -88,3 +88,5 @@ int GrayArea::getSpeed(){return speed;}
 bool GrayArea::isAlive(){return alive;}
 
 void GrayArea::kill(){alive = false;}
+
+int GrayArea::getHeight(){return height;}

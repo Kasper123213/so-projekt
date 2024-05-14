@@ -8,8 +8,8 @@ using namespace std;
 
 class GrayArea{
 	private:
-		float posX, posY, maxY, size = 100, step = 2;
-		int speed, maxSpeed = 1, minSpeed = 50;
+		float posX, posY, maxY, step = 2;
+		int speed, maxSpeed = 1, minSpeed = 50, width = 20, height = 150;
 		vector<float> color;
 		bool alive = true;
 		
@@ -34,6 +34,8 @@ class GrayArea{
 		
 		void kill();
 		bool isAlive();
+		
+		int getHeight();
 		
 		thread movingThread();
 

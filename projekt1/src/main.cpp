@@ -16,9 +16,9 @@ float minStep = -1;
 float maxStep = 1;
 
 int maxBallsSpeed = 1;
-int minBallsSpeed = 15;
+int minBallsSpeed = 10;
 
-int maxBallsNumber = 5;
+int maxBallsNumber = 10;
 
 GrayArea *grayArea = new GrayArea(150, height/2, height, 10);
 thread grayAreaThread = grayArea->movingThread();
@@ -32,6 +32,9 @@ float newBallProbability = .0000005; //%
 
 thread ballsUpdatingThread;
 int ballsUpdatingSpeed = 20;
+
+thread ballsCollisionThread;
+int ballsCollisionSpeed = 1;
 
 bool appIsRunning = true;
 
@@ -60,7 +63,7 @@ void addBall(){
 	
 	
 	float stepX = float(random()) /RAND_MAX * (maxStep - minStep) + minStep;
-	float stepY = float(random()) /RAND_MAX * (maxStep - minStep) + minStep;
+	float stepY = float(random()) /RAND_MAX * maxStep;
 	
 	
 	int speed = int(float(random()) /RAND_MAX * (maxBallsSpeed - minBallsSpeed) + minBallsSpeed);
@@ -95,6 +98,24 @@ void ballUpdating(){
     		this_thread::sleep_for(chrono::milliseconds(ballsUpdatingSpeed));
     	}
 }
+
+void ballsCollision(){
+	while(appIsRunning){
+		for(int i=0; i<balls.size(); i++){
+			if(int(balls.at(i)->getX()) == int(grayArea->getX())){
+				int height = grayArea->getHeight();
+				int y = grayArea->getY();
+				if(y - height > balls.at(i)->getY() or balls.at(i)->getY() > y + height){
+					balls.at(i)->unfreez();
+				}else{
+					balls.at(i)->freez();
+				}
+			}
+		}
+    		
+    		this_thread::sleep_for(chrono::milliseconds(ballsCollisionSpeed));
+    	}
+}
  
 
 void update(int _) {
@@ -125,6 +146,8 @@ void display() {
 void myInit() {
 	ballsUpdatingThread = thread(ballUpdating);
 	
+	ballsCollisionThread = thread(ballsCollision);
+	
     	glClearColor(0.0, 0.0, 0.0, 1.0);
     	glMatrixMode(GL_PROJECTION);
     	glLoadIdentity();
@@ -139,9 +162,12 @@ void close(){
 	appIsRunning = false;
 	ballsUpdatingThread.join();
 	
+	ballsCollisionThread.join();
+	
 	
 	while(getBallsSize()>0){
 		balls.front()->kill();
+		balls.front()->unfreez();
 		balls.erase(balls.begin());
 		
 	}
@@ -161,6 +187,22 @@ void close(){
 void keyUp(unsigned char key, int x, int y){
 	if (key == ' '){
 		close();
+	}
+	if (key == 'a'){
+		addBall();
+	}
+	if (key == 'r'){
+		removeBall(0);
+	}
+	if (key == 'l'){
+		if(!balls.at(0)->isFrozen()){
+			balls.at(0)->freez();
+		}
+	}
+	if (key == 'u'){
+		if(balls.at(0)->isFrozen()){
+			balls.at(0)->unfreez();
+		}
 	}
 }
 

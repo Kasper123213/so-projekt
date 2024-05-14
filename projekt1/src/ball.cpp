@@ -16,6 +16,7 @@ Ball::Ball(float maxX, float maxY, float posX, float posY, float stepX, float st
     	this->speed = speed;
     	radius = 15;
     	alive = true;
+    	frozen = false;
     	
     	for(float f: color){
     		this->color.push_back(f);
@@ -27,6 +28,9 @@ Ball::~Ball() {
 }
 
 void Ball::move() {
+	
+	if(frozen){ mtx.lock();}
+	
 	setX(getX() + stepX);
 	
     	if(getX()>maxX) {
@@ -59,6 +63,7 @@ void Ball::move() {
     		bounces++;
     		return;
     	}
+    	if(!frozen){ mtx.unlock();}
     	
 }
 
@@ -132,4 +137,19 @@ void Ball::setY(float value){
 int Ball::getNr(){
 	return nr;
 }
-	
+
+void Ball::freez(){
+	if(!frozen){
+		mtx.lock();
+		frozen = true;
+	}
+}
+
+void Ball::unfreez(){
+	if(frozen){
+		mtx.unlock();
+		frozen = false;
+	}
+}
+
+bool Ball::isFrozen(){ return frozen;}	

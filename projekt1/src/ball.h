@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <thread>
+#include <mutex>
 #include <unistd.h>
 
 
@@ -14,11 +15,12 @@ private:
 	float maxX, maxY, stepX, stepY, posX, posY;
 	vector<float> color;
 	int nr, speed, radius, bounces = 0, maxBounces = 5; 
-	bool alive;
+	bool alive, frozen;
 	
 
 	void drawText(const std::string& text, float x, float y);
 	void movement();
+	mutex mtx;
 	
 
 public:
@@ -36,6 +38,9 @@ public:
 	void move();
 	void draw();
 	void kill();
+	void freez();
+	void unfreez();
+	bool isFrozen();
 
     
     	thread movingThread();
