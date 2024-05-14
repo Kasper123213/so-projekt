@@ -16,7 +16,7 @@ float minStep = -1;
 float maxStep = 1;
 
 int maxBallsSpeed = 1;
-int minBallsSpeed = 20;
+int minBallsSpeed = 15;
 
 int maxBallsNumber = 5;
 

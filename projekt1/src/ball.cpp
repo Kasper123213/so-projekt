@@ -30,7 +30,7 @@ void Ball::move() {
 	setX(getX() + stepX);
 	
     	if(getX()>maxX) {
-    		stepX *= -1;
+    		stepX = -stepX;
     		setX(maxX);
     		bounces++;
     		return;
@@ -47,7 +47,7 @@ void Ball::move() {
     	setY(getY() + stepY);
    
     	if(getY()>maxY){
-    		stepY *= -1;
+    		stepY = -stepY;
     		setY(maxY);
     		bounces++;
     		return;
