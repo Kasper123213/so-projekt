@@ -1,0 +1,1 @@
+pilki odbijają się od ścianel zgodnie z regółami odbicia. składowe kroku x i y jest generowana losowo. Szara strefa porusza się z góry do dołu po każdym odbiciu zmieniając losowo prędkość. Kulki pojawiają się na środku dolnej krawędzi. W momencie wciśnięcia klawisza spacja na wątkach wywoływane są metody join.

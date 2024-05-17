@@ -6,4 +6,8 @@
 
 2 zadanie
 
-jak kulka dojdzie do pozycji prostokąta to ma sie zatrzymac az prostokąt zejdzie z tej linii
+jak kulka dojdzie do pozycji prostokąta to ma sie zatrzymac az prostokąt zejdzie z tej lini
+
+2 uwagi:
+	-uzywac zmiennych warunkowych zamiast frozen
+	-usunąć returny w move w ball
