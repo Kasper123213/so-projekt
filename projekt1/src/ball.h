@@ -5,7 +5,11 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <unistd.h>
+#include <iostream>
+#include <GL/glut.h>
+#include <chrono>
 
 
 using namespace std;
@@ -21,6 +25,7 @@ private:
 	void drawText(const std::string& text, float x, float y);
 	void movement();
 	mutex mtx;
+	condition_variable cv;
 	
 
 public:

@@ -4,6 +4,7 @@
 #include <thread>
 #include <vector>
 #include <chrono>
+#include <mutex>
 #include "ball.h"
 #include "grayArea.h"
 
@@ -15,7 +16,7 @@ int height = 768;
 float minStep = -1;
 float maxStep = 1;
 
-int maxBallsSpeed = 1;
+int maxBallsSpeed = 3;
 int minBallsSpeed = 10;
 
 int maxBallsNumber = 10;
@@ -36,11 +37,13 @@ int ballsUpdatingSpeed = 20;
 thread ballsCollisionThread;
 int ballsCollisionSpeed = 1;
 
+mutex ballsSizeMtx;
+
 bool appIsRunning = true;
 
-int getBallsSize(){ return balls.size();}
 
 void removeBall(int index){
+	
 	balls.at(index)->kill();
 	
 	ballThreads.at(index).join();
@@ -51,6 +54,7 @@ void removeBall(int index){
 	auto ballsIt = balls.begin() + index;
 	delete balls.at(index);
 	balls.erase(ballsIt);
+	
 }
 
 
@@ -65,17 +69,16 @@ void addBall(){
 	float stepX = float(random()) /RAND_MAX * (maxStep - minStep) + minStep;
 	float stepY = float(random()) /RAND_MAX * maxStep;
 	
-	
 	int speed = int(float(random()) /RAND_MAX * (maxBallsSpeed - minBallsSpeed) + minBallsSpeed);
 	
 	
 	float posX = width / 2;
 	float posY = 1;
 	
-	Ball* ball = new Ball(width, height, posX, posY, stepX, stepY, color, getBallsSize(), speed);
+	Ball* ball = new Ball(width, height, posX, posY, stepX, stepY, color, balls.size(), speed);
 	balls.push_back(ball);
 	
-	ballThreads.push_back(balls.at(getBallsSize() - 1)->movingThread());
+	ballThreads.push_back(balls.at(balls.size() - 1)->movingThread());
 	
 }
 
@@ -88,12 +91,13 @@ void ballUpdating(){
 				maxBallsNumber--;
 			}
 		}
-	
-    		for(int i = 0; i<getBallsSize(); i++){
+		ballsSizeMtx.lock();
+    		for(int i = 0; i<balls.size(); i++){
     			if(not balls.at(i)->isAlive()){
     				removeBall(i);
 			}
     		}
+    		ballsSizeMtx.unlock();
     		
     		this_thread::sleep_for(chrono::milliseconds(ballsUpdatingSpeed));
     	}
@@ -101,6 +105,7 @@ void ballUpdating(){
 
 void ballsCollision(){
 	while(appIsRunning){
+		ballsSizeMtx.lock();
 		for(int i=0; i<balls.size(); i++){
 			if(int(balls.at(i)->getX()) == int(grayArea->getX())){
 				int height = grayArea->getHeight();
@@ -112,6 +117,7 @@ void ballsCollision(){
 				}
 			}
 		}
+		ballsSizeMtx.unlock();
     		
     		this_thread::sleep_for(chrono::milliseconds(ballsCollisionSpeed));
     	}
@@ -132,9 +138,11 @@ void display() {
     	
     	grayArea->draw();
     	
-    	for(int i = 0; i<getBallsSize(); i++){
+    	ballsSizeMtx.lock();
+    	for(int i = 0; i<balls.size(); i++){
     		balls.at(i)->draw();
     	}
+    	ballsSizeMtx.unlock();
     	
     	
     	glPopMatrix();
@@ -165,7 +173,7 @@ void close(){
 	ballsCollisionThread.join();
 	
 	
-	while(getBallsSize()>0){
+	while(balls.size()>0){
 		balls.front()->kill();
 		balls.front()->unfreez();
 		balls.erase(balls.begin());

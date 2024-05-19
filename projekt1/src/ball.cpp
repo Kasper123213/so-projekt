@@ -1,7 +1,4 @@
-#include <iostream>
-#include <GL/glut.h>
-#include <vector>
-#include <chrono>
+
 #include "ball.h"
 
 
@@ -28,8 +25,8 @@ Ball::~Ball() {
 }
 
 void Ball::move() {
-	
-	if(frozen){ mtx.lock();}
+	std::unique_lock<mutex> lock(mtx);
+	cv.wait(lock, [this]{return !frozen;});
 	
 	setX(getX() + stepX);
 	
@@ -61,14 +58,13 @@ void Ball::move() {
     		stepY *= -1;
     		setY(0);
     		bounces++;
-    		return;
     	}
-    	if(!frozen){ mtx.unlock();}
     	
 }
 
 
 void Ball::kill(){
+	std::unique_lock<mutex> lock(mtx);
 	alive = false;
 }
 
@@ -139,17 +135,13 @@ int Ball::getNr(){
 }
 
 void Ball::freez(){
-	if(!frozen){
-		mtx.lock();
-		frozen = true;
-	}
+	frozen = true;
+	cv.notify_all();
 }
 
 void Ball::unfreez(){
-	if(frozen){
-		mtx.unlock();
-		frozen = false;
-	}
+	frozen = false;
+	cv.notify_all();
 }
 
 bool Ball::isFrozen(){ return frozen;}	
