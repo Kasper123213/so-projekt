@@ -62,6 +62,18 @@ void Ball::move() {
     	
 }
 
+void Ball::freez(){
+	frozen = true;
+	cv.notify_all();
+}
+
+void Ball::unfreez(){
+	frozen = false;
+	cv.notify_all();
+}
+
+bool Ball::isFrozen(){ return frozen;}	
+
 
 void Ball::kill(){
 	std::unique_lock<mutex> lock(mtx);
@@ -134,14 +146,3 @@ int Ball::getNr(){
 	return nr;
 }
 
-void Ball::freez(){
-	frozen = true;
-	cv.notify_all();
-}
-
-void Ball::unfreez(){
-	frozen = false;
-	cv.notify_all();
-}
-
-bool Ball::isFrozen(){ return frozen;}	

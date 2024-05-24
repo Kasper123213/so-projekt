@@ -103,7 +103,7 @@ void ballUpdating(){
     	}
 }
 
-void ballsCollision(){
+void ballsCollision(){//mutex jeden dla wszystkich kulek
 	while(appIsRunning){
 		ballsSizeMtx.lock();
 		for(int i=0; i<balls.size(); i++){
