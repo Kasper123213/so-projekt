@@ -2,7 +2,7 @@
 #include "ball.h"
 
 
-Ball::Ball(float maxX, float maxY, float posX, float posY, float stepX, float stepY, vector<float> color, int nr, int speed) {
+Ball::Ball(float maxX, float maxY, float posX, float posY, float stepX, float stepY, vector<float> color, int nr, int speed, mutex* mtx) {
     	this->maxX = maxX;
 	this->maxY = maxY;
     	this->posX = posX;
@@ -11,6 +11,7 @@ Ball::Ball(float maxX, float maxY, float posX, float posY, float stepX, float st
     	this->stepY = stepY;
     	this->nr = nr;
     	this->speed = speed;
+    	this->mtx = mtx;
     	radius = 15;
     	alive = true;
     	frozen = false;
@@ -25,7 +26,7 @@ Ball::~Ball() {
 }
 
 void Ball::move() {
-	std::unique_lock<mutex> lock(mtx);
+	std::unique_lock<mutex> lock(*mtx);
 	cv.wait(lock, [this]{return !frozen;});
 	
 	setX(getX() + stepX);
@@ -76,7 +77,7 @@ bool Ball::isFrozen(){ return frozen;}
 
 
 void Ball::kill(){
-	std::unique_lock<mutex> lock(mtx);
+	std::unique_lock<mutex> lock(*mtx);
 	alive = false;
 }
 

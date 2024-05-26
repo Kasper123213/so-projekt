@@ -38,6 +38,7 @@ thread ballsCollisionThread;
 int ballsCollisionSpeed = 1;
 
 mutex ballsSizeMtx;
+mutex ballsMoveMtx;
 
 bool appIsRunning = true;
 
@@ -75,7 +76,7 @@ void addBall(){
 	float posX = width / 2;
 	float posY = 1;
 	
-	Ball* ball = new Ball(width, height, posX, posY, stepX, stepY, color, balls.size(), speed);
+	Ball* ball = new Ball(width, height, posX, posY, stepX, stepY, color, balls.size(), speed, &ballsMoveMtx);
 	balls.push_back(ball);
 	
 	ballThreads.push_back(balls.at(balls.size() - 1)->movingThread());
@@ -103,7 +104,7 @@ void ballUpdating(){
     	}
 }
 
-void ballsCollision(){//mutex jeden dla wszystkich kulek
+void ballsCollision(){//mutex jeden dla wszystkich kulekgit stat
 	while(appIsRunning){
 		ballsSizeMtx.lock();
 		for(int i=0; i<balls.size(); i++){

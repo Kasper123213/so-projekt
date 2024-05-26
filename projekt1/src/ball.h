@@ -24,12 +24,12 @@ private:
 
 	void drawText(const std::string& text, float x, float y);
 	void movement();
-	mutex mtx;
+	mutex* mtx;
 	condition_variable cv;
 	
 
 public:
-	Ball(float maxX, float maxY, float posX, float posY, float stepX, float stepY, vector<float> color, int nr, int speed);
+	Ball(float maxX, float maxY, float posX, float posY, float stepX, float stepY, vector<float> color, int nr, int speed, mutex* mtx);
 	~Ball();
 	
 	int getNr();
