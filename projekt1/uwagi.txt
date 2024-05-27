@@ -11,3 +11,6 @@ jak kulka dojdzie do pozycji prostokąta to ma sie zatrzymac az prostokąt zejdz
 2 uwagi:
 	-uzywac zmiennych warunkowych zamiast frozen
 	-usunąć returny w move w ball
+
+etap 3:
+licznik kulek zamarożonych
