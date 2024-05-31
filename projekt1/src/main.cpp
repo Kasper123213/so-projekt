@@ -4,6 +4,7 @@
 #include <thread>
 #include <vector>
 #include <chrono>
+#include <string>
 #include <mutex>
 #include "ball.h"
 #include "grayArea.h"
@@ -42,6 +43,7 @@ mutex ballsMoveMtx;
 
 bool appIsRunning = true;
 
+int frozenBallsNumber = 0;
 
 void removeBall(int index){
 	
@@ -104,7 +106,7 @@ void ballUpdating(){
     	}
 }
 
-void ballsCollision(){//mutex jeden dla wszystkich kulekgit stat
+void ballsCollision(){
 	while(appIsRunning){
 		ballsSizeMtx.lock();
 		for(int i=0; i<balls.size(); i++){
@@ -112,8 +114,10 @@ void ballsCollision(){//mutex jeden dla wszystkich kulekgit stat
 				int height = grayArea->getHeight();
 				int y = grayArea->getY();
 				if(y - height > balls.at(i)->getY() or balls.at(i)->getY() > y + height){
+					if(balls.at(i)->isFrozen()) frozenBallsNumber--;
 					balls.at(i)->unfreez();
 				}else{
+					if(!balls.at(i)->isFrozen())frozenBallsNumber++;
 					balls.at(i)->freez();
 				}
 			}
@@ -144,6 +148,18 @@ void display() {
     		balls.at(i)->draw();
     	}
     	ballsSizeMtx.unlock();
+    	
+    //Rysowanie licznika kulek
+    	
+    	glColor3f(1, 1, 1); 
+    	// Ustaw pozycję tekstu
+    	glRasterPos2f(1100, 760);
+    	string text = "Number of frozen balls: " + to_string(frozenBallsNumber);
+    
+    	// Narysuj każdy znak osobno
+    	for (char c : text) {
+        	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    	}
     	
     	
     	glPopMatrix();

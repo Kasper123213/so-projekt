@@ -26,6 +26,7 @@ Ball::~Ball() {
 }
 
 void Ball::move() {
+	//if(frozen) cout<<"Dupa1"<<endl;
 	std::unique_lock<mutex> lock(*mtx);
 	cv.wait(lock, [this]{return !frozen;});
 	
